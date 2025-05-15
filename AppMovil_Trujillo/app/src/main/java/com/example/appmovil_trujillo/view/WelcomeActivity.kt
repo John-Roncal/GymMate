@@ -1,4 +1,4 @@
-package com.example.appmovil_trujillo
+package com.example.appmovil_trujillo.view
 
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity

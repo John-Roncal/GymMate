@@ -1,4 +1,4 @@
-package com.example.appmovil_trujillo
+package com.example.appmovil_trujillo.view
 
 import android.content.Intent
 import android.net.Uri
@@ -62,6 +62,10 @@ class MainActivity : AppCompatActivity() {
                     }
                 }
             }
+        }
+
+        binding.btnGoToRegister.setOnClickListener {
+            startActivity(Intent(this, RegisterActivity::class.java))
         }
 
         // Configurar botones de redes sociales

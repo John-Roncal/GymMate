@@ -20,6 +20,17 @@ class UserLogin(BaseModel):
     username: str
     password: str
 
+class Perfil(BaseModel):
+    username: str
+    talla: float
+    peso: float
+    edad: int
+    genero: str
+    meta: str
+    diasSemana: int
+    nivel: str
+    observaciones: str
+
 class ResponseModel(BaseModel):
     success: bool
     detail: str
@@ -68,6 +79,17 @@ async def login(user: UserLogin):
         if row is None:
             raise HTTPException(401, "Credenciales inválidas")
     return {"success": True, "detail": f"Bienvenido, usuario {row['id']}"}
+
+@app.post("/perfil")
+async def guardar_perfil(perfil: Perfil):
+    async with app.state.db_pool.acquire() as conn:
+        await conn.execute("""
+            INSERT INTO perfiles (
+                username, talla, peso, edad, genero, meta, dias_semana, nivel, observaciones
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+        """, perfil.username, perfil.talla, perfil.peso, perfil.edad,
+             perfil.genero, perfil.meta, perfil.diasSemana, perfil.nivel, perfil.observaciones)
+    return {"success": True, "detail": "Perfil guardado correctamente"}
 
 # Para correr localmente:
 if __name__ == "__main__":
