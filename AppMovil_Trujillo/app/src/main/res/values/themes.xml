@@ -1,8 +1,18 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
+    <!-- Base application theme using Material 3 -->
     <style name="Base.Theme.AppMovil_Trujillo" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+        <!-- Customize your theme colors if needed -->
+        <!-- Example overrides (uncomment if needed): -->
+        <!-- <item name="colorPrimary">@color/primary</item> -->
+        <!-- <item name="colorOnPrimary">@color/onPrimary</item> -->
+        <!-- <item name="colorSecondary">@color/secondary</item> -->
+
+        <!-- Enables proper appearance of TextInputLayout and MaterialButton -->
+        <item name="textInputStyle">@style/Widget.Material3.TextInputLayout.OutlinedBox</item>
+        <item name="materialButtonStyle">@style/Widget.Material3.Button</item>
+
+        <!-- Optional: makes edit texts and outlines look sharper on older devices -->
+        <item name="android:editTextBackground">@null</item>
     </style>
 
     <style name="Theme.AppMovil_Trujillo" parent="Base.Theme.AppMovil_Trujillo" />
