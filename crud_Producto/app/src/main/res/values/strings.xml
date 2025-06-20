@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">crud_Producto</string>
+    <string name="title_activity_login">LoginActivity</string>
+    <string name="prompt_email">Email</string>
+    <string name="prompt_password">Password</string>
+    <string name="action_sign_in">Sign in or register</string>
+    <string name="action_sign_in_short">Sign in</string>
+    <string name="welcome">"Welcome !"</string>
+    <string name="invalid_username">Not a valid username</string>
+    <string name="invalid_password">Password must be >5 characters</string>
+    <string name="login_failed">"Login failed"</string>
+    <string-array name="generos_array">
+        <item>Masculino</item>
+        <item>Femenino</item>
+        <item>Otro</item>
+    </string-array>
+    <string-array name="niveles_array">
+        <item>Principiante</item>
+        <item>Intermedio</item>
+        <item>Avanzado</item>
+    </string-array>
+    <string-array name="objetivos_array">
+        <item>Bajar Grasa</item>
+        <item>Recomposición Corporal</item>
+        <item>Ganar Músculo</item>
+        <item>Ganar Fuerza</item>
+    </string-array>
+</resources>
