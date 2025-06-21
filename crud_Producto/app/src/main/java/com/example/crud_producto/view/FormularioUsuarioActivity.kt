@@ -2,6 +2,8 @@ package com.example.crud_producto.view
 
 import android.content.Intent
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.example.crud_producto.databinding.ActivityFormularioUsuarioBinding
@@ -32,14 +34,23 @@ class FormularioUsuarioActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            val usuario = UsuarioRequest(
-                nombre, edad, peso, talla, genero, meta, dias, nivel,
-                if (observaciones.isBlank()) null else observaciones
-            )
+            // Muestra la animación de carga
+            binding.loadingProgressBar.visibility = android.view.View.VISIBLE
 
-            val intent = Intent(this, RutinaActivity::class.java)
-            intent.putExtra("usuario", usuario)
-            startActivity(intent)
+            // Simula el procesamiento de la IA (1 minuto)
+            Handler(Looper.getMainLooper()).postDelayed({
+                val usuario = UsuarioRequest(
+                    nombre, edad, peso, talla, genero, meta, dias, nivel,
+                    if (observaciones.isBlank()) null else observaciones
+                )
+
+                val intent = Intent(this, RutinaActivity::class.java)
+                intent.putExtra("usuario", usuario)
+                startActivity(intent)
+
+                // Oculta la animación de carga
+                binding.loadingProgressBar.visibility = android.view.View.GONE
+            }, 30000) // 30,000 ms = 30seg
         }
     }
 }
