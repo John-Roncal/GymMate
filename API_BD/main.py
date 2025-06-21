@@ -60,7 +60,7 @@ class RespuestaIA(BaseModel):
     nutricion: str
 
 client = OpenAI(
-    api_key="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",
+    api_key="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",
     base_url="https://openrouter.ai/api/v1"
 )
 
