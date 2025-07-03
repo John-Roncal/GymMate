@@ -7,6 +7,7 @@
     android:orientation="vertical"
     android:padding="16dp"
     tools:context=".view.RutinaDetalleActivity">
+    <include layout="@layout/navbar" />
 
     <TextView
         android:id="@+id/tvTituloEjercicios"

@@ -1,0 +1,15 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/menu_inicio"
+        android:title="Inicio"
+        android:textColor="#000000"/>
+
+    <item
+        android:id="@+id/menu_trainerbot"
+        android:title="TrainerBot"
+        android:textColor="#000000"/>
+    <item
+        android:id="@+id/menu_cerrar_sesion"
+        android:title="Cerrar sesión"
+        android:textColor="#000000"/>
+</menu>

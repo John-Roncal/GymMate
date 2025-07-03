@@ -19,6 +19,9 @@ class LoginViewModel : ViewModel() {
     private val _mensaje = MutableLiveData<String>()
     val mensaje: LiveData<String> = _mensaje
 
+    private val _usuarioId = MutableLiveData<Int>()
+    val usuarioId: LiveData<Int> get() = _usuarioId
+
     fun login(usuario: String, contraseña: String) {
         if (usuario.isBlank() || contraseña.isBlank()) {
             _mensaje.value = "Completa todos los campos"
@@ -27,7 +30,8 @@ class LoginViewModel : ViewModel() {
 
         viewModelScope.launch {
             val result = repository.checkUser(usuario, contraseña)
-            if (result) {
+            if (result != null && result.success) {
+                _usuarioId.value = result.usuario_id
                 _loginExitoso.value = true
             } else {
                 _mensaje.value = "Credenciales inválidas"
@@ -35,18 +39,20 @@ class LoginViewModel : ViewModel() {
         }
     }
 
-    fun registrar(usuario: String, contraseña: String) {
-        if (usuario.isBlank() || contraseña.isBlank()) {
+    fun registrar(username: String, password: String) {
+        if (username.isBlank() || password.isBlank()) {
             _mensaje.value = "Completa todos los campos"
             return
         }
 
         viewModelScope.launch {
-            val result = repository.registerUser(usuario, contraseña)
-            if (result) {
+            val response = repository.registerUser(username, password)
+            if (response != null && response.success) {
+                _usuarioId.value = response.usuario_id
                 _registroExitoso.value = true
             } else {
-                _mensaje.value = "Error al registrar"
+                _mensaje.value = "Error al registrar usuario"
+                _registroExitoso.value = false
             }
         }
     }

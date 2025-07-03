@@ -7,6 +7,8 @@
     android:padding="16dp"
     tools:context=".view.RutinaActivity">
 
+    <include layout="@layout/navbar" />
+
     <TextView
         android:id="@+id/tvNutricion"
         android:layout_width="match_parent"

@@ -8,7 +8,8 @@ CREATE TABLE usuarios (
 
 CREATE TABLE perfil (
     id SERIAL PRIMARY KEY,
-    nombre VARCHAR(50) UNIQUE NOT NULL,
+	usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
+    nombre VARCHAR(50) NOT NULL,
     edad smallint NOT NULL,
 	peso decimal(10,2) NOT NULL,
 	talla decimal(10,2) NOT NULL,
@@ -18,6 +19,14 @@ CREATE TABLE perfil (
 	nivel TEXT NOT NULL,
 	observaciones TEXT NULL
 );
+
+CREATE TABLE plan_entrenamiento (
+    id SERIAL PRIMARY KEY,
+    usuario_id INTEGER NOT NULL REFERENCES usuarios(id),
+    rutina JSONB NOT NULL,
+    nutricion TEXT NOT NULL
+);
+
 
 INSERT INTO usuarios (username, password)
 VALUES (

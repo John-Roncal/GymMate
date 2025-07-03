@@ -12,8 +12,8 @@ import kotlinx.coroutines.launch
 class PlanViewModel : ViewModel() {
     private val repository = PlanRepository()
 
-    private val _respuesta = MutableLiveData<RespuestaIA>()
-    val respuesta: LiveData<RespuestaIA> = _respuesta
+    private val _respuesta = MutableLiveData<RespuestaIA?>()
+    val respuesta: LiveData<RespuestaIA?> = _respuesta
 
     private val _error = MutableLiveData<String>()
     val error: LiveData<String> = _error
@@ -31,6 +31,21 @@ class PlanViewModel : ViewModel() {
                 }
             } catch (e: Exception) {
                 _error.value = e.message
+            }
+        }
+    }
+
+    fun cargarPlanGuardado(usuarioId: Int) {
+        viewModelScope.launch {
+            try {
+                val response = repository.obtenerPlan(usuarioId)
+                if (response.isSuccessful) {
+                    _respuesta.postValue(response.body())
+                } else {
+                    _error.postValue("Error al obtener plan guardado")
+                }
+            } catch (e: Exception) {
+                _error.postValue("Error: ${e.message}")
             }
         }
     }

@@ -16,6 +16,8 @@ class FormularioUsuarioActivity : AppCompatActivity() {
         binding = ActivityFormularioUsuarioBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        val usuarioId = intent.getIntExtra("usuario_id", -1)
+
         binding.btnGenerar.setOnClickListener {
             val nombre = binding.etNombre.text.toString()
             val edad = binding.etEdad.text.toString().toIntOrNull()
@@ -34,6 +36,7 @@ class FormularioUsuarioActivity : AppCompatActivity() {
             }
 
             val usuario = UsuarioRequest(
+                usuario_id = usuarioId,
                 nombre = nombre,
                 edad = edad,
                 peso = peso,

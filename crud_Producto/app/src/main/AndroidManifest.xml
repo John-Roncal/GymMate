@@ -29,5 +29,6 @@
         <activity android:name=".view.RegisterActivity"/>
         <activity android:name=".view.RutinaActivity"/>
         <activity android:name=".view.RutinaDetalleActivity"/>
+        <activity android:name=".view.ChatBotActivity"/>
     </application>
 </manifest>

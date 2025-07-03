@@ -2,6 +2,7 @@ package com.example.crud_producto.view
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.widget.*
 import androidx.activity.viewModels
 import androidx.appcompat.app.AppCompatActivity
@@ -34,7 +35,9 @@ class LoginActivity : AppCompatActivity() {
 
         viewModel.loginExitoso.observe(this) { exito ->
             if (exito) {
-                startActivity(Intent(this, RutinaActivity::class.java))
+                val intent = Intent(this, RutinaActivity::class.java)
+                intent.putExtra("usuario_id", viewModel.usuarioId.value ?: -1)
+                startActivity(intent)
                 finish()
             }
         }

@@ -5,7 +5,7 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.activity.viewModels
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.Toolbar
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.example.crud_producto.databinding.ActivityRutinaBinding
 import com.example.crud_producto.model.UsuarioRequest
@@ -14,7 +14,7 @@ import com.example.crud_producto.viewmodel.PlanViewModel
 import com.google.gson.Gson
 import com.example.crud_producto.R
 
-class RutinaActivity : AppCompatActivity() {
+class RutinaActivity : BaseActivity() {
 
     private lateinit var binding: ActivityRutinaBinding
     private val viewModel: PlanViewModel by viewModels()
@@ -41,17 +41,31 @@ class RutinaActivity : AppCompatActivity() {
         binding = ActivityRutinaBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val usuario = intent.getParcelableExtra<UsuarioRequest>("usuario")
-        if (usuario == null) {
-            Toast.makeText(this, "Datos de usuario no encontrados", Toast.LENGTH_SHORT).show()
-            finish()
-            return
+        val usuarioCompleto = intent.getParcelableExtra<UsuarioRequest>("usuario")
+        val usuarioIdDesdeLogin = intent.getIntExtra("usuario_id", -1)
+        val toolbar = findViewById<Toolbar>(R.id.toolbar)
+        setSupportActionBar(toolbar)
+        supportActionBar?.apply {
+            title = "GymMate"
+            setDisplayHomeAsUpEnabled(true)
         }
 
         setupRecyclerView()
         observarViewModel()
         mostrarDialogoCarga()
-        viewModel.generarPlan(usuario)
+        when {
+            usuarioCompleto != null -> {
+                viewModel.generarPlan(usuarioCompleto)
+            }
+            usuarioIdDesdeLogin != -1 -> {
+                viewModel.cargarPlanGuardado(usuarioIdDesdeLogin)
+            }
+            else -> {
+                ocultarDialogoCarga()
+                Toast.makeText(this, "No se pudo obtener información del usuario", Toast.LENGTH_SHORT).show()
+                finish()
+            }
+        }
     }
 
     private fun setupRecyclerView() {
@@ -68,10 +82,11 @@ class RutinaActivity : AppCompatActivity() {
     private fun observarViewModel() {
         viewModel.respuesta.observe(this) { plan ->
             ocultarDialogoCarga()
-            binding.tvNutricion.text = plan.nutricion
-            adapter.actualizarLista(plan.rutina)
+            if (plan != null) {
+                binding.tvNutricion.text = plan.nutricion
+                adapter.actualizarLista(plan.rutina)
+            }
         }
-
 
         viewModel.error.observe(this) {
             ocultarDialogoCarga()

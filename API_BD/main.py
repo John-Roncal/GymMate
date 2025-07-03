@@ -1,12 +1,11 @@
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
 from openai import OpenAI
 import asyncpg
-from typing import Optional, List
 import json
 import re
 from db_config import get_connection
+import modelos as m
 
 app = FastAPI()
 
@@ -19,54 +18,14 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# =============================
-# MODELOS Pydantic
-# =============================
-class ResponseModel(BaseModel):
-    success: bool
-    detail: str
-
-class UserRegister(BaseModel):
-    username: str
-    password: str
-
-class UserLogin(BaseModel):
-    username: str
-    password: str
-
-class Perfil(BaseModel):
-    nombre: str
-    edad: int
-    peso: float
-    talla: float
-    genero: str
-    meta: str
-    dias_gym: int
-    nivel: str
-    observaciones: Optional[str] = None
-
-class EjercicioDetalle(BaseModel):
-    nombre: str
-    descripcion: str
-    repeticiones: str
-
-class RutinaDetalle(BaseModel):
-    nombre: str
-    descripcion: str
-    ejercicios: List[EjercicioDetalle]
-
-class RespuestaIA(BaseModel):
-    rutina: List[RutinaDetalle]
-    nutricion: str
-
 client = OpenAI(
-    api_key="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",
+    api_key="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",
     base_url="https://openrouter.ai/api/v1"
 )
 
 def consultar_chatbot(pregunta_usuario):
     mensajes = [
-        {"role": "system", "content": "Eres un entrenador personal amigable y profesional de gimnasio. Responde a preguntas sobre ejercicios, rutinas y nutrición."}, #Si no tiene que ver con gym, que diga no es mi rubro.
+        {"role": "system", "content": "Eres un entrenador personal amigable y profesional de gimnasio. Responde a preguntas sobre ejercicios, rutinas y nutrición. Responde siempre de forma concisa y en un tono conversacional. Ten en cuenta que tu respuesta forma parte de una conversación de un chatbot, sin utilizar asteriscos ni ningún otro símbolo para énfasis o formato."},
         {"role": "user", "content": pregunta_usuario}
     ]
 
@@ -81,24 +40,32 @@ def consultar_chatbot(pregunta_usuario):
 # =============================
 
 # Endpoint de registro
-@app.post("/register", response_model=ResponseModel)
-async def register(user: UserRegister):
+@app.post("/register", response_model=m.ResponseModel)
+async def register(user: m.UserRegister):
     conn = await get_connection()
     try:
-        await conn.execute(
+        row = await conn.fetchrow(
             """
             INSERT INTO usuarios (username, password)
             VALUES ($1, crypt($2, gen_salt('bf')))
+            RETURNING id
             """,
             user.username, user.password
         )
+        usuario_id = row["id"]
+        return {
+            "success": True,
+            "detail": "Usuario registrado correctamente.",
+            "usuario_id": usuario_id
+        }
     except asyncpg.exceptions.UniqueViolationError:
         raise HTTPException(400, "El nombre de usuario ya existe")
-    return {"success": True, "detail": "Usuario registrado correctamente"}
+    finally:
+        await conn.close()
 
 # Endpoint de login
-@app.post("/login", response_model=ResponseModel)
-async def login(user: UserLogin):
+@app.post("/login", response_model=m.ResponseModel)
+async def login(user: m.UserLogin):
     conn = await get_connection()
     try:
         row = await conn.fetchrow(
@@ -115,30 +82,67 @@ async def login(user: UserLogin):
 
     if row is None:
         raise HTTPException(status_code=401, detail="Credenciales inválidas")
-
-    return {"success": True, "detail": f"Bienvenido, usuario {row['id']}"}
+    
+    usuario_id = row["id"]
+    return {
+        "success": True, 
+        "detail": "Bienvenido", 
+        "usuario_id": usuario_id
+    }
 
 
 # =============================
 # ENDPOINTS
 # =============================
 
-@app.post("/perfil", response_model=RespuestaIA)
-async def guardar_perfil(perfil: Perfil):
+@app.post("/chatbot", response_model=m.RespuestaChat)
+async def responder_chatbot(pregunta: m.PreguntaRequest):
+    respuesta_ia = consultar_chatbot(pregunta.pregunta)
+    return {"respuesta": respuesta_ia}
+
+@app.post("/perfil", response_model=m.RespuestaIA)
+async def guardar_perfil(perfil: m.Perfil):
     conn = await get_connection()
     try:
         await conn.fetchrow(
             """
-            INSERT INTO perfil (
-                nombre, edad, peso, talla, genero, meta, dias_gym, nivel, observaciones
-            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)
+            INSERT INTO perfil ( 
+            usuario_id, nombre, edad, peso, talla, genero, meta, dias_gym, nivel, observaciones
+            ) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
             """,
-            perfil.nombre, perfil.edad, perfil.peso, perfil.talla, perfil.genero, perfil.meta, perfil.dias_gym, perfil.nivel, perfil.observaciones)
-        return generar_plan(perfil)
+            perfil.usuario_id, perfil.nombre, perfil.edad, perfil.peso, perfil.talla, perfil.genero, perfil.meta, perfil.dias_gym, perfil.nivel, perfil.observaciones)
+        
+        plan = generar_plan(perfil)
+
+        await conn.execute("""
+            INSERT INTO plan_entrenamiento (usuario_id, rutina, nutricion)
+            VALUES ($1, $2, $3)
+        """, perfil.usuario_id, json.dumps(plan["rutina"]), plan["nutricion"])
+
+        return plan
     finally:
         await conn.close()
 
-def generar_plan(usuario: Perfil):
+@app.get("/plan/{usuario_id}", response_model=m.RespuestaIA)
+async def obtener_plan_guardado(usuario_id: int):
+    conn = await get_connection()
+    try:
+        row = await conn.fetchrow(
+            "SELECT rutina, nutricion FROM plan_entrenamiento WHERE usuario_id = $1",
+            usuario_id
+        )      
+        if row is None:
+            raise HTTPException(status_code=404, detail="Plan no encontrado")
+
+        rutina = json.loads(row['rutina'])
+        nutricion = row['nutricion']
+        
+        return {"rutina": rutina, "nutricion": nutricion}
+    finally:
+        await conn.close()
+
+
+def generar_plan(usuario: m.Perfil):
     prompt = f"""
     Eres un entrenador personal virtual y nutricionista. Tu tarea es generar una rutina de ejercicios y recomendaciones nutricionales para una persona con los siguientes datos:
 

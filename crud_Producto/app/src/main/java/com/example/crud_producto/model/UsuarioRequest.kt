@@ -4,6 +4,7 @@ import kotlinx.parcelize.Parcelize
 
 @Parcelize
 data class UsuarioRequest(
+    val usuario_id: Int,
     val nombre: String,
     val edad: Int,
     val peso: Float,

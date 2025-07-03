@@ -29,7 +29,9 @@ class RegisterActivity : AppCompatActivity() {
         viewModel.registroExitoso.observe(this) { exito ->
             if (exito) {
                 Toast.makeText(this, "Registro exitoso. Ahora ingresa tus datos para crear tu rutina.", Toast.LENGTH_SHORT).show()
-                startActivity(Intent(this, FormularioUsuarioActivity::class.java))
+                val intent = Intent(this, FormularioUsuarioActivity::class.java)
+                intent.putExtra("usuario_id", viewModel.usuarioId.value ?: -1)
+                startActivity(intent)
                 finish()
             }
         }
