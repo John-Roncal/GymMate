@@ -4,7 +4,6 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="16dp"
     tools:context=".view.RutinaActivity">
 
     <include layout="@layout/navbar" />
@@ -16,8 +15,12 @@
         android:text="Plan nutricional generado por IA"
         android:textSize="16sp"
         android:textColor="#333333"
-        android:padding="8dp"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:paddingTop="8dp"
+        android:paddingBottom="8dp"
         android:background="#EFEFEF"
+        android:layout_marginTop="16dp"
         android:layout_marginBottom="16dp" />
 
     <androidx.recyclerview.widget.RecyclerView
@@ -26,6 +29,8 @@
         android:layout_height="0dp"
         android:layout_weight="1"
         android:clipToPadding="false"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
         android:paddingBottom="8dp"
         android:scrollbars="vertical" />
 </LinearLayout>
